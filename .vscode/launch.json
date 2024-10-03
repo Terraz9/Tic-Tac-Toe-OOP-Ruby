@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "rdbg",
+            "name": "Debug current file",
+            "request": "launch",
+            "script": "${file}",
+            "askParameters": true
+        },
+        {
+            "type": "rdbg",
             "name": "Debug current file with rdbg",
             "request": "launch",
             "script": "${file}",
@@ -15,7 +22,8 @@
         {
             "type": "rdbg",
             "name": "Attach with rdbg",
-            "request": "attach"
+            "request": "attach",
+            "debugPort": "12345",
         }
     ]
 }
