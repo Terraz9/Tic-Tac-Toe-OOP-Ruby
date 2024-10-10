@@ -1,35 +1,12 @@
-module WinConditions
-  def diagonal_checker
-
-  end
-  def horizontal_checker
-    self.board.container.any? do |row|
-      row.all? {|column| column == self.player_1.player_mark}
-      row.all? {|column| column == self.player_2.player_mark}
-    end
-  end
-
-  def vertical_checker
-
-  end
-end
-
-class PlayRound
-  include WinConditions
-  attr_reader :player_1, :player_2, :board
-  def initialize
-    puts "Welcome to the AMAZING DIGITAL Tic-Tac-Toe coded by Terraz!!!"
-    @board = Board.new
-    self.board.print_matrix
-    start_game_asking
-  end
+module InterfaceMessages
   def start_game_asking
     puts "Would you like to start the game? Y/n"
     answer = gets.chomp
     case answer
     when "Y", "y", ""
-      assign_names
+      self.assign_names
     else
+      puts "Fine"
     end
   end
   def assign_names
@@ -37,69 +14,98 @@ class PlayRound
     @player_1 = Player.new("x")
     puts "What's your name Player 2?"
     @player_2 = Player.new("o")
-    start_round
+    self.starting_round_message
   end
-  def start_round
+
+  def starting_round_message
     puts "----------------------------"
     puts "Let's start!!!"
     self.board.print_matrix
     puts "----------------------------"
-    player_1_turn
+    self.game_loop
   end
 
-  def player_1_turn
-    puts "#{self.player_1.name}'s turn"
-    self.player_1.get_row
-    self.player_1.get_column
-    if self.board.container[self.player_1.row][self.player_1.column] == "*"
-    self.board.update_board(self.player_1.row, self.player_1.column, self.player_1.player_mark)
-      else
-       puts "It seems that space is already occupied, sir"
-       player_1_turn
+  def win_message(player)
+    puts "The AMAZING DIGITAL WINNER IS #{player.name}"
+  end
+
+end
+
+
+module WinConditions
+  def diagonal_checker(player)
+    self.board.container.all? do |row|
     end
-    self.board.print_matrix
-    puts "----------------------------"
-    if self.horizontal_checker == true
-    puts "The AMAZING DIGITAL WINNER IS #{self.player_1.name}"
+  end
+
+  def horizontal_checker(player)
+    self.board.container.any? do |row|
+      row.all? {|column| column == player.player_mark}
+    end
+  end
+
+  def vertical_checker(player)
+    (0..2).any? do |col|
+    self.board.container.all? {|row| row[col] == player.player_mark}
+    end
+  end
+  
+  def somebody_won?
+    if self.horizontal_checker(self.player_1) || self.horizontal_checker(self.player_2) || self.vertical_checker(self.player_1) || self.vertical_checker(self.player_2)
+      true
     else
-    self.player_2_turn
-    end
-  end
-
-
-  def player_2_turn
-    puts "#{self.player_2.name}'s turn"
-    self.player_2.get_row
-    self.player_2.get_column
-    if self.board.container[self.player_2.row][self.player_2.column] == "*"
-      self.board.update_board(self.player_2.row, self.player_2.column, self.player_2.player_mark)
-      else
-        puts "It seems that space is already occupied, sir"
-        player_2_turn
-    end
-      self.board.print_matrix
-      puts "----------------------------"
-      
-    if self.horizontal_checker == true
-       puts "The AMAZING DIGITAL WINNER IS #{self.player_2.name}, Congratulations!!"
-      else
-        self.player_1_turn
+      false
     end
   end
 
 end
 
-class Board
-  attr_accessor :container
+class PlayRound
+  include WinConditions
+  include InterfaceMessages
+  attr_reader :player_1, :player_2, :board
   def initialize
-    @container = self.get_board
-  end
-  def get_board
-    Array.new(3) { Array.new(3,"*")}
+    puts "Welcome to the AMAZING DIGITAL Tic-Tac-Toe coded by Terraz!!!"
+    @board = Board.new
+    self.board.print_matrix
+    self.start_game_asking
   end
 
-  def update_board(row, column, player_mark)
-    self.container[row][column] = player_mark
+  def game_loop
+    until somebody_won?
+      player_turn(self.player_1)
+      if somebody_won?
+        self.win_message(self.player_1)
+      end
+      break if somebody_won?
+
+      player_turn(self.player_2)
+      if somebody_won?
+        self.win_message(self.player_2)
+      end
+      break if somebody_won?
+    end
+  end
+
+
+  def player_turn(player)
+    player.play
+    if self.board.empty_cell?(player.row, player.column)
+    self.board.update_board(player.row, player.column, player.player_mark)
+    self.board.print_matrix
+    else
+      puts "The space is occupied, sir"
+      player_turn(player)
+    end
+  end
+  
+end
+
+class Board
+  attr_accessor :container
+
+  def initialize
+    @container = self.get_board
   end
 
   def print_matrix
@@ -107,6 +113,23 @@ class Board
       puts row.join(" ")
     end
   end
+    
+  def get_board
+    Array.new(3) { Array.new(3,"*")}
+  end
+  
+  def update_board(row, column, player_mark)
+    self.container[row][column] = player_mark
+  end
+
+def empty_cell?(row, column)
+  if self.container[row][column] == "*"
+    true
+  else
+    false
+  end
+end
+
 end
 
 
@@ -128,6 +151,11 @@ class Player
     @column = gets.chomp.to_i - 1
   end
 
+  def play
+    puts "#{self.name}'s turn"
+      self.get_row
+      self.get_column
+  end
 
 end
 
