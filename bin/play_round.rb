@@ -1,49 +1,56 @@
+# frozen_string_literal: true
+
 require_relative '../lib/board'
 require_relative '../lib/interface_messages'
 require_relative '../lib/player'
 require_relative '../lib/win_conditions'
 
-
-
+# This class performs the start of the game and finish it when somebody wins
 class PlayRound
   include WinConditions
   include InterfaceMessages
-  attr_reader :player_1, :player_2, :board
+  attr_reader :player1, :player2, :board
+
   def initialize
-    puts "Welcome to the AMAZING DIGITAL Tic-Tac-Toe coded by Terraz!!!"
+    puts 'Welcome to the AMAZING DIGITAL Tic-Tac-Toe coded by Terraz!!!'
     @board = Board.new
-    self.board.print_matrix
-    self.start_game_asking
+    board.print_matrix
+    start_game_asking
   end
 
   def game_loop
-    until somebody_won?
-      player_turn(self.player_1)
-      if somebody_won?
-        self.win_message(self.player_1)
-      end
-      break if somebody_won?
+    until game_over?
+      play_turn_and_check(player1)
+      break if game_over?
 
-      player_turn(self.player_2)
-      if somebody_won?
-        self.win_message(self.player_2)
-      end
-      break if somebody_won?
+      play_turn_and_check(player2)
+      break if game_over?
     end
   end
 
+  def play_turn_and_check(player)
+    player_turn(player)
+    if somebody_won?
+      win_message(player)
+    elsif board.no_space? && somebody_won? == false
+      tie_message
+    end
+  end
+
+  def game_over?
+    somebody_won? || board.no_space?
+  end
 
   def player_turn(player)
     player.play
-    if self.board.empty_cell?(player.row, player.column)
-    self.board.update_board(player.row, player.column, player.player_mark)
-    self.board.print_matrix
+    if board.empty_cell?(player.row, player.column)
+      board.update_board(player.row, player.column, player.player_mark)
+      board.print_matrix
     else
-      puts "The space is occupied, sir"
+      puts 'The space is occupied, sir'
       player_turn(player)
     end
   end
-  
 end
 
 Round1 = PlayRound.new

@@ -1,32 +1,39 @@
+# frozen_string_literal: true
+
+# This module contains all the messages displayed in the interface in a sequential way
 module InterfaceMessages
   def start_game_asking
-    puts "Would you like to start the game? Y/n"
+    puts 'Would you like to start the game? Y/n'
     answer = gets.chomp
     case answer
-    when "Y", "y", ""
-      self.assign_names
+    when 'Y', 'y', ''
+      assign_names
     else
-      puts "Fine"
+      puts 'Fine'
     end
   end
+
   def assign_names
     puts "What's your name Player 1?"
-    @player_1 = Player.new("x")
+    @player1 = Player.new('x')
     puts "What's your name Player 2?"
-    @player_2 = Player.new("o")
-    self.starting_round_message
+    @player2 = Player.new('o')
+    starting_round_message
   end
 
   def starting_round_message
-    puts "----------------------------"
+    puts '----------------------------'
     puts "Let's start!!!"
-    self.board.print_matrix
-    puts "----------------------------"
-    self.game_loop
+    board.print_matrix
+    puts '----------------------------'
+    game_loop
   end
 
   def win_message(player)
     puts "The AMAZING DIGITAL WINNER IS #{player.name}"
   end
 
+  def tie_message
+    puts "It's a TIE"
+  end
 end
